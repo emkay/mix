@@ -10,102 +10,99 @@ class CPUTest < Test::Unit::TestCase
         @cpu.set_mem 2000, ['-', 8, 0, 3, 5, 4]
         @cpu.load_program('LDA 2000')
         @cpu.run
-        assert_equal(['-',8,0,3,5,4], @cpu.reg_a, 'Testing without Fspec. Register A is not equal to expected result.')
+        assert_equal(['-',8,0,3,5,4], @cpu.registers['A'], 'Testing without Fspec. Register A is not equal to expected result.')
 
         @cpu.load_program('LDA 2000(1:5)')
         @cpu.run
-        assert_equal(['+',8,0,3,5,4], @cpu.reg_a, 'Testing Fspec 1:5. Register A is not equal to expected result.')
+        assert_equal(['+',8,0,3,5,4], @cpu.registers['A'], 'Testing Fspec 1:5. Register A is not equal to expected result.')
 
         @cpu.load_program('LDA 2000(3:5)')
         @cpu.run
-        assert_equal(['+',0,0,3,5,4], @cpu.reg_a, 'Testing Fspec 3:5. Register A is not equal to expected result.')
+        assert_equal(['+',0,0,3,5,4], @cpu.registers['A'], 'Testing Fspec 3:5. Register A is not equal to expected result.')
 
         @cpu.load_program('LDA 2000(0:3)')
         @cpu.run
-        assert_equal(['-',0,0,8,0,3], @cpu.reg_a, 'Testing Fspec 0:3. Register A is not equal to expected result.')
+        assert_equal(['-',0,0,8,0,3], @cpu.registers['A'], 'Testing Fspec 0:3. Register A is not equal to expected result.')
 
         @cpu.load_program('LDA 2000(4:4)')
         @cpu.run
-        assert_equal(['+',0,0,0,0,5], @cpu.reg_a, 'Testing Fspec 4:4. Register A is not equal to expected result.')
+        assert_equal(['+',0,0,0,0,5], @cpu.registers['A'], 'Testing Fspec 4:4. Register A is not equal to expected result.')
 
         @cpu.load_program('LDA 2000(0:0)')
         @cpu.run
-        assert_equal(['-',0,0,0,0,0], @cpu.reg_a, 'Testing Fspec 0:0. Register A is not equal to expected result.')
+        assert_equal(['-',0,0,0,0,0], @cpu.registers['A'], 'Testing Fspec 0:0. Register A is not equal to expected result.')
 
         @cpu.load_program('LDA 2000(1:1)')
         @cpu.run
-        # This is a weird test because byte size is vaiable and I'm not taking into account bytes.
-        assert_equal(['+',0,0,0,0,8], @cpu.reg_a, 'Testing Fspec 1:1. Register A is not equal to expected result.') 
+        assert_equal(['+',0,0,0,0,8], @cpu.registers['A'], 'Testing Fspec 1:1. Register A is not equal to expected result.') 
     end
 
     def test_ldx
         @cpu.set_mem 2000, ['-', 8, 0, 3, 5, 4]
         @cpu.load_program('LDX 2000')
         @cpu.run
-        assert_equal(['-',8,0,3,5,4], @cpu.reg_x, 'Testing without Fspec. Register X is not equal to expected result.')
+        assert_equal(['-',8,0,3,5,4], @cpu.registers['X'], 'Testing without Fspec. Register X is not equal to expected result.')
 
         @cpu.load_program('LDX 2000(1:5)')
         @cpu.run
-        assert_equal(['+',8,0,3,5,4], @cpu.reg_x, 'Testing Fspec 1:5. Register X is not equal to expected result.')
+        assert_equal(['+',8,0,3,5,4], @cpu.registers['X'], 'Testing Fspec 1:5. Register X is not equal to expected result.')
 
         @cpu.load_program('LDX 2000(3:5)')
         @cpu.run
-        assert_equal(['+',0,0,3,5,4], @cpu.reg_x, 'Testing Fspec 3:5. Register X is not equal to expected result.')
+        assert_equal(['+',0,0,3,5,4], @cpu.registers['X'], 'Testing Fspec 3:5. Register X is not equal to expected result.')
 
         @cpu.load_program('LDX 2000(0:3)')
         @cpu.run
-        assert_equal(['-',0,0,8,0,3], @cpu.reg_x, 'Testing Fspec 0:3. Register X is not equal to expected result.')
+        assert_equal(['-',0,0,8,0,3], @cpu.registers['X'], 'Testing Fspec 0:3. Register X is not equal to expected result.')
 
         @cpu.load_program('LDX 2000(4:4)')
         @cpu.run
-        assert_equal(['+',0,0,0,0,5], @cpu.reg_x, 'Testing Fspec 4:4. Register X is not equal to expected result.')
+        assert_equal(['+',0,0,0,0,5], @cpu.registers['X'], 'Testing Fspec 4:4. Register X is not equal to expected result.')
 
         @cpu.load_program('LDX 2000(0:0)')
         @cpu.run
-        assert_equal(['-',0,0,0,0,0], @cpu.reg_x, 'Testing Fspec 0:0. Register X is not equal to expected result.')
+        assert_equal(['-',0,0,0,0,0], @cpu.registers['X'], 'Testing Fspec 0:0. Register X is not equal to expected result.')
 
         @cpu.load_program('LDX 2000(1:1)')
         @cpu.run
-        # This is a weird test because byte size is vaiable and I'm not taking into account bytes.
-        assert_equal(['+',0,0,0,0,8], @cpu.reg_x, 'Testing Fspec 1:1. Register X is not equal to expected result.') 
+        assert_equal(['+',0,0,0,0,8], @cpu.registers['X'], 'Testing Fspec 1:1. Register X is not equal to expected result.') 
     end
 
     def test_ldan
         @cpu.set_mem 2000, ['-', 8, 0, 3, 5, 4]
         @cpu.load_program('LDAN 2000')
         @cpu.run
-        assert_equal(['+',8,0,3,5,4], @cpu.reg_a, 'Testing without Fspec.')
+        assert_equal(['+',8,0,3,5,4], @cpu.registers['A'], 'Testing without Fspec.')
 
         @cpu.load_program('LDAN 2000(1:5)')
         @cpu.run
-        assert_equal(['-',8,0,3,5,4], @cpu.reg_a, 'Testing Fspec 1:5.')
+        assert_equal(['-',8,0,3,5,4], @cpu.registers['A'], 'Testing Fspec 1:5.')
 
         @cpu.load_program('LDAN 2000(3:5)')
         @cpu.run
-        assert_equal(['-',0,0,3,5,4], @cpu.reg_a, 'Testing Fspec 3:5. Register A is not equal to expected result.')
+        assert_equal(['-',0,0,3,5,4], @cpu.registers['A'], 'Testing Fspec 3:5. Register A is not equal to expected result.')
 
         @cpu.load_program('LDAN 2000(0:3)')
         @cpu.run
-        assert_equal(['+',0,0,8,0,3], @cpu.reg_a, 'Testing Fspec 0:3. Register A is not equal to expected result.')
+        assert_equal(['+',0,0,8,0,3], @cpu.registers['A'], 'Testing Fspec 0:3. Register A is not equal to expected result.')
 
         @cpu.load_program('LDAN 2000(4:4)')
         @cpu.run
-        assert_equal(['-',0,0,0,0,5], @cpu.reg_a, 'Testing Fspec 4:4. Register A is not equal to expected result.')
+        assert_equal(['-',0,0,0,0,5], @cpu.registers['A'], 'Testing Fspec 4:4. Register A is not equal to expected result.')
 
         @cpu.load_program('LDAN 2000(0:0)')
         @cpu.run
-        assert_equal(['+',0,0,0,0,0], @cpu.reg_a, 'Testing Fspec 0:0. Register A is not equal to expected result.')
+        assert_equal(['+',0,0,0,0,0], @cpu.registers['A'], 'Testing Fspec 0:0. Register A is not equal to expected result.')
 
         @cpu.load_program('LDAN 2000(1:1)')
         @cpu.run
-        # This is a weird test because byte size is vaiable and I'm not taking into account bytes.
-        assert_equal(['-',0,0,0,0,8], @cpu.reg_a, 'Testing Fspec 1:1. Register A is not equal to expected result.') 
+        assert_equal(['-',0,0,0,0,8], @cpu.registers['A'], 'Testing Fspec 1:1. Register A is not equal to expected result.') 
     
     end
 
     def test_sta
         @cpu.set_mem 2000, ['-',1,2,3,4,5]
-        @cpu.reg_a = ['+',6,7,8,9,0]
+        @cpu.registers['A'] = ['+',6,7,8,9,0]
         
         @cpu.load_program('STA 2000')
         @cpu.run
@@ -126,5 +123,9 @@ class CPUTest < Test::Unit::TestCase
         @cpu.run
         assert_equal(['-',1,0,3,4,5], @cpu.mem[2000], 'Testing with Fspec 2:2.')
         
+        @cpu.set_mem 2000, ['-',1,2,3,4,5]
+        @cpu.load_program('STA 2000(2:3)')
+        @cpu.run
+        assert_equal(['-',1,9,0,4,5], @cpu.mem[2000], 'Testing with Fspec 2:3.')
     end
 end

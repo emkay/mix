@@ -1,33 +1,41 @@
 class CPU
-    attr_writer :reg_a, :reg_x, :reg_i1, :reg_i2, :reg_i3, :reg_i4, :reg_i5, :reg_i6, :reg_j, :overflow_toggle, :comparison, :mem, :instructions, :program
-    attr_reader :reg_a, :reg_x, :reg_i1, :reg_i2, :reg_i3, :reg_i4, :reg_i5, :reg_i6, :reg_j, :overflow_toggle, :comparison, :mem, :instructions, :program
+    attr_accessor :registers, :overflow_toggle, :comparison, :mem, :instructions, :program, :mix_charset
+    
+    MIX_OK     = 0
+    MIX_HALT   = 1
+    MIX_ERROR  = 2
+    MIX_IOWAIT = 3
+        
     def initialize
-        @reg_a  = Array.new(6)
-        @reg_x  = Array.new(6)
-        @reg_i1 = Array.new(3)
-        @reg_i2 = Array.new(3)
-        @reg_i3 = Array.new(3)
-        @reg_i4 = Array.new(3)
-        @reg_i5 = Array.new(3)
-        @reg_i6 = Array.new(3)
-        @reg_j  = Array.new(3)
-        @overflow_toggle = false
-        @comparison = { :equal => false, :less => false, :greater => false }
-        @mem = nil
-        @instructions = {}
-        @program
-
-        self.set_instructions
+        @registers = { 'A' => nil, 'X' => nil, 'I1' => nil, 'I2' => nil, 'I3' => nil, 'I4' => nil, 'I5' => nil, 'I6' => nil, 'J' => nil }
+        @mix_charset = " ABCDEFGHI^JKLMNOPQR^^STUVWXYZ0123456789.,()+-*/=\$<>@;:'"; # ^ are placeholders and not valid characters. 
         self.reset
     end
 
     def reset
+        @registers['A']  = ['+', 0, 0, 0, 0, 0]
+        @registers['X']  = ['+', 0, 0, 0, 0, 0]
+        @registers['I1'] = ['+', 0, 0]
+        @registers['I2'] = ['+', 0, 0]
+        @registers['I3'] = ['+', 0, 0]
+        @registers['I4'] = ['+', 0, 0]
+        @registers['I5'] = ['+', 0, 0]
+        @registers['I6'] = ['+', 0, 0]
+        @registers['J']  = ['+', 0, 0]
+        @overflow_toggle = false
+        @comparison = { :equal => false, :less => false, :greater => false }
+        
         new_mem = Array.new(4000)
-        @mem = new_mem.collect { |x| Array.new(6) }
+        @mem = new_mem.collect { |x| ['+', 0, 0, 0, 0, 0] }
+        @status = MIX_OK
     end
 
-    def set_instructions
-        @instructions[:LDA] = 8
+    def step
+        if @status == MIX_IOWAIT
+            return false
+        elsif @status != MIX_OK
+            return false
+        end
     end
 
     def load_program(p)
@@ -53,35 +61,45 @@ class CPU
         end
         case instruction
         when "LDA"
-            @reg_a = self.load_register(memory.to_i, start, stop)
+            @registers['A'] = self.read_mem(memory.to_i, start, stop)
         when "LDX"
-            @reg_x = self.load_register(memory.to_i, start, stop)
+            @registers['X'] = self.read_mem(memory.to_i, start, stop)
         when "LD1"
-            @reg_i1 = self.load_register(memory.to_i, start, stop)
+            @registers['I1'] = self.read_mem(memory.to_i, start, stop)
         when "LD2"
-            @reg_i2 = self.load_register(memory.to_i, start, stop)
+            @registers['I2'] = self.read_mem(memory.to_i, start, stop)
         when "LD3"
-            @reg_i3 = self.load_register(memory.to_i, start, stop)
+            @registers['I3'] = self.read_mem(memory.to_i, start, stop)
         when "LD4"
-            @reg_i4 = self.load_register(memory.to_i, start, stop)
+            @registers['I4'] = self.read_mem(memory.to_i, start, stop)
         when "LD5"
-            @reg_i5 = self.load_register(memory.to_i, start, stop)
+            @registers['I5'] = self.read_mem(memory.to_i, start, stop)
         when "LD6"
-            @reg_i6 = self.load_register(memory.to_i, start, stop)
+            @registers['I6'] = self.read_mem(memory.to_i, start, stop)
         when "LDAN"
-            @reg_a = self.load_register(memory.to_i, start, stop)
-            @reg_a[0] = self.opposite_sign(@reg_a[0])
+            @registers['A'] = self.read_mem(memory.to_i, start, stop)
+            @registers['A'][0] = self.opposite_sign(@registers['A'][0])
         when "LDXN"
-            @reg_x = self.load_register(memory.to_i, start, stop)
-            @reg_x[0] = self.opposite_sign(@reg_x[0])
+            @registers['X'] = self.read_mem(memory.to_i, start, stop)
+            @registers['X'][0] = self.opposite_sign(@registers['X'][0])
         when "STA"
-            temp = self.store_register('A', start, stop)
-            temp.each_with_index { |n,i| 
-                if n.nil?
-                    temp[i] = @mem[memory.to_i][i]
-                end
-            }
-            @mem[memory.to_i] = temp
+            self.set_mem(memory.to_i, @registers['A'].clone, start, stop)
+        when "STX"
+            self.set_mem(memory.to_i, @registers['X'].clone, start, stop)
+        when "ST1"
+            self.set_mem(memory.to_i, @registers['I1'].clone, start, stop)
+        when "ST2"
+            self.set_mem(memory.to_i, @registers['I2'].clone, start, stop)
+        when "ST3"
+            self.set_mem(memory.to_i, @registers['I3'].clone, start, stop)
+        when "ST4"
+            self.set_mem(memory.to_i, @registers['I4'].clone, start, stop)
+        when "ST5"
+            self.set_mem(memory.to_i, @registers['I5'].clone, start, stop)
+        when "ST6"
+            self.set_mem(memory.to_i, @registers['I6'].clone, start, stop)
+        when "STJ"
+            self.set_mem(memory.to_i, @registers['J'].clone, start, stop)
         end
     end
 
@@ -94,54 +112,59 @@ class CPU
         end
     end
 
-    def store_register(reg, start, stop)
-        temp = Array.new(6)
-        case reg
-        when 'A'
-            temp[start..stop] = @reg_a[start..stop]
-            return temp
+    def set_mem(loc, word, l=0, r=5)
+        if loc < 0 or loc > 3999
+            @status = MIX_ERROR
+            @message = "Writing to invalid memory location: #{loc}"
+            return 
         end
-    end
-
-    def load_register(location, start, stop, size=6)
-        reg = Array.new(size)
-        temp = Array.new(size)
-        temp[start..stop] = @mem[location][start..stop]
-        sign = '+'
         
-        if start == 0 and stop < 5 and stop > 0
-            sign = temp[0]
-            temp_start = size - temp.compact.count - 1
-            temp_stop  = temp.compact.count - 1
-            reg_start = stop
-            reg_stop  = temp.count - 1
-        elsif start > 0 and stop < 5
-            temp_start = start
-            temp_stop = stop
-            reg_start = size - temp.compact.count
-            reg_stop = temp.size - 1
-        else
-            reg_start = start
-            reg_stop  = stop
-            temp_start = start
-            temp_stop = stop
-        end
-        reg[0] = sign
-        reg[reg_start..reg_stop] = temp[temp_start..temp_stop]
-        self.check_register(reg)
-    end
-
-    def check_register(reg)
-        reg.collect { |i| 
-            if i.nil?
-                0
-            else
-                i
+        r.downto(l) { |i|
+            if i > 0
+                @mem[loc][i] = word.pop
+            end
+            
+            if i == 0
+                if word[0] and (word[0] == '+' or word[0] == '-')
+                    @mem[loc][0] = word[0]
+                else
+                    @mem[loc][0] = '+'
+                end
             end
         }
     end
 
-    def set_mem(loc, a)
-        @mem[loc] = a
+    def read_mem(loc, l=0, r=5)
+        if loc < 0 or loc > 3999
+            @status = MIX_ERROR
+            @message = "Reading at invalid memory location: #{loc}"
+            return
+        end
+        ret = @mem[loc].clone
+        if l == 0
+            l = 1
+        else
+            ret[0] = '+'
+        end
+
+        5.downto(1) { |i|
+            if r >= l
+                ret[i] = ret[r]
+            else
+                ret[i] = 0
+            end
+            r -= 1
+        }
+        ret
+    end
+
+    def mix_char(code)
+        return false if code < 0 or code >= @mix_charset.size - 1
+        @mix_charset[code..code]
+    end
+
+    def mix_char_code(char)
+        return false if char == '^'
+        @mix_charset.index(char)
     end
 end

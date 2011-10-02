@@ -7,3 +7,6 @@ The goal is to learn how to write a simulator, learn more about an assembler lan
 h2. Basics
 
 h2. Resources
+
+* "MIX and MIXAL tutorial":http://www.gnu.org/software/mdk/manual/html_node/MIX-and-MIXAL-tutorial.html#MIX-and-MIXAL-tutorial
+* "Hardware::Simulator::MIX - A simulator of Knuth's famous virtual machine":http://search.cpan.org/~litchie/Hardware-Simulator-MIX-0.5/lib/Hardware/Simulator/MIX.pm

@@ -6,7 +6,7 @@ class CPU
     MIX_ERROR  = 2
     MIX_IOWAIT = 3
     
-    MAX_BYTE   = 64
+    MAX_BYTE   = 100
         
     def initialize
         @registers = { 'A' => nil, 'X' => nil, 'I1' => nil, 'I2' => nil, 'I3' => nil, 'I4' => nil, 'I5' => nil, 'I6' => nil, 'J' => nil }
@@ -159,11 +159,7 @@ class CPU
 
     def add(word)
         added = word_to_int(word) + word_to_int(@registers['A'].clone)
-        if not int_to_word(added, @registers['A'])
-            @overflow_toggle = true 
-        else
-            @overflow_toggle = false
-        end
+        @registers['A'] = int_to_word(added, @registers['A'].clone)
     end
 
     def sub(word)
@@ -186,11 +182,16 @@ class CPU
             word[0] = '+'
         end
 
-        5.downto(1) { |i| 
+        5.downto(1) { |i|
             word[i] = val % MAX_BYTE
             val = (val/MAX_BYTE).to_i
         }
-        val == 0
+        if val == 0
+            @overflow_toggle = false
+        else
+            @overflow_toggle = true 
+        end
+        word
     end
 
     def mix_char(code)

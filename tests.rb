@@ -5,6 +5,17 @@ class CPUTest < Test::Unit::TestCase
     def setup
         @cpu = CPU.new
     end
+    
+    def test_mix_char
+        assert_equal(' ', @cpu.mix_char(0), 'mix_char 0 is not equal to space.')
+        assert_equal('A', @cpu.mix_char(1), 'mix_char 1 is not equal to A.')
+        assert_equal('@', @cpu.mix_char(52), 'mix_char 52 is not equal to @.')
+        assert_equal('[', @cpu.mix_char(20), 'mix_char 20 is not equal to [.')
+    end
+
+    def test_mix_char_code
+        assert_equal(52, @cpu.mix_char_code('@'), 'mix_char_code @ is not equal to 52.')
+    end
 
     def test_lda
         @cpu.set_mem 2000, ['-', 8, 0, 3, 5, 4]

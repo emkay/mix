@@ -8,7 +8,7 @@ class CPU
         
     def initialize
         @registers = { 'A' => nil, 'X' => nil, 'I1' => nil, 'I2' => nil, 'I3' => nil, 'I4' => nil, 'I5' => nil, 'I6' => nil, 'J' => nil }
-        @mix_charset = " ABCDEFGHI^JKLMNOPQR^^STUVWXYZ0123456789.,()+-*/=\$<>@;:'"; # ^ are placeholders and not valid characters. 
+        @mix_charset = " ABCDEFGHI~JKLMNOPQR[#STUVWXYZ0123456789.,()+-*/=\$<>@;:'"; # ^ are placeholders and not valid characters. 
         self.reset
     end
 
@@ -200,7 +200,6 @@ class CPU
     end
 
     def mix_char_code(char)
-        return false if char == '^'
         @mix_charset.index(char)
     end
 end

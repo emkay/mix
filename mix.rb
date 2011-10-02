@@ -100,16 +100,13 @@ class CPU
             self.set_mem(memory.to_i, @registers['I6'].clone, start, stop)
         when "STJ"
             self.set_mem(memory.to_i, @registers['J'].clone, start, stop)
+        when "ADD"
+            self.add(self.read_mem(memory.to_i, start, stop))
         end
     end
 
     def opposite_sign(sign)
-        case sign
-        when "+"
-            return "-"
-        when "-"
-            return "+"
-        end
+        sign == "+" ? "-" : "+"
     end
 
     def set_mem(loc, word, l=0, r=5)
@@ -156,6 +153,45 @@ class CPU
             r -= 1
         }
         ret
+    end
+
+    def add(word)
+        m = 64
+        added = word_to_int(word) + word_to_int(@registers['A'].clone)
+        if not int_to_word(added, @registers['A'])
+            @overflow_toggle = true 
+        else
+            @overflow_toggle = false
+        end
+    end
+
+    def sub(word)
+    end
+
+    def word_to_int(word)
+        val = 0
+        m   = 64
+        1.upto(5) { |i| val = val * m + word[i] }
+        if word[0] == '-'
+            return -val
+        end
+        val
+    end
+
+    def int_to_word(val, word)
+        m = 64
+        if val < 0
+            word[0] = '-'
+            val = -val
+        else
+            word[0] = '+'
+        end
+
+        5.downto(1) { |i| 
+            word[i] = val % m
+            val = (val/m).to_i
+        }
+        val == 0
     end
 
     def mix_char(code)

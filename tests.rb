@@ -128,4 +128,12 @@ class CPUTest < Test::Unit::TestCase
         @cpu.run
         assert_equal(['-',1,9,0,4,5], @cpu.mem[2000], 'Testing with Fspec 2:3.')
     end
+
+    def test_add
+        @cpu.registers['A'] = ['+',12,34,1,1,50]
+        @cpu.set_mem 1000, ['+', 1, 00, 5, 0, 50]
+        @cpu.load_program('ADD 1000')
+        @cpu.run
+        assert_equal(['+', 13, 34, 6, 2, 00], @cpu.registers['A'], 'Testing ADD.')
+    end
 end

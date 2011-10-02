@@ -5,10 +5,12 @@ class CPU
     MIX_HALT   = 1
     MIX_ERROR  = 2
     MIX_IOWAIT = 3
+    
+    MAX_BYTE   = 64
         
     def initialize
         @registers = { 'A' => nil, 'X' => nil, 'I1' => nil, 'I2' => nil, 'I3' => nil, 'I4' => nil, 'I5' => nil, 'I6' => nil, 'J' => nil }
-        @mix_charset = " ABCDEFGHI~JKLMNOPQR[#STUVWXYZ0123456789.,()+-*/=\$<>@;:'"; # ^ are placeholders and not valid characters. 
+        @mix_charset = " ABCDEFGHI~JKLMNOPQR[#STUVWXYZ0123456789.,()+-*/=\$<>@;:'";
         self.reset
     end
 
@@ -156,7 +158,6 @@ class CPU
     end
 
     def add(word)
-        m = 64
         added = word_to_int(word) + word_to_int(@registers['A'].clone)
         if not int_to_word(added, @registers['A'])
             @overflow_toggle = true 
@@ -170,8 +171,7 @@ class CPU
 
     def word_to_int(word)
         val = 0
-        m   = 64
-        1.upto(5) { |i| val = val * m + word[i] }
+        1.upto(5) { |i| val = val * MAX_BYTE + word[i] }
         if word[0] == '-'
             return -val
         end
@@ -179,7 +179,6 @@ class CPU
     end
 
     def int_to_word(val, word)
-        m = 64
         if val < 0
             word[0] = '-'
             val = -val
@@ -188,8 +187,8 @@ class CPU
         end
 
         5.downto(1) { |i| 
-            word[i] = val % m
-            val = (val/m).to_i
+            word[i] = val % MAX_BYTE
+            val = (val/MAX_BYTE).to_i
         }
         val == 0
     end

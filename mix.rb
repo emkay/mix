@@ -1,5 +1,5 @@
 class CPU
-    attr_accessor :registers, :overflow_toggle, :comparison, :mem, :instructions, :program, :mix_charset
+    attr_accessor :registers, :overflow_toggle, :comparison, :mem, :instructions, :program, :mix_charset, :status, :message
     
     MIX_OK     = 0
     MIX_HALT   = 1

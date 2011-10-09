@@ -153,4 +153,10 @@ class CPUTest < Test::Unit::TestCase
         assert_equal(@cpu.status, 2, 'Testing bad location status')
         assert_equal(@cpu.message, "Writing to invalid memory location: 5000", 'Testing bad location message')
     end
+
+    def test_read_mem_bad_location
+        a = @cpu.read_mem 5000
+        assert_equal(@cpu.status, 2, 'Testing bad location status')
+        assert_equal(@cpu.message, "Reading at invalid memory location: 5000")
+    end
 end
